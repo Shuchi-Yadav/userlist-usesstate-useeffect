@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
 
 function App() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    fetch('https://reqres.in/api/users?page=2')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network request fail...")
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUsers(data.data)
+        setLoading(false)
+      })
+      .catch((errr) => {
+        setError(errr)
+        setLoading(false)
+      })
+  }, []);
+  if (loading) {
+    return <p>loading</p>
+  }
+  if (error) {
+    return <p>Error:{error.message}</p>
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <h1>
+      <ul>
+        {
+          users.map((user) => (
+            <li key={user.id}>
+              <img src={user.avatar} alt={user.first_name} />
+              <p>{user.first_name}{user.last_name}</p>
+              <p>Email:{user.email}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </h1>
+  
+  )
+
 }
 
 export default App;
